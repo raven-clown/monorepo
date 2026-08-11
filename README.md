@@ -47,11 +47,17 @@ polling, no server.
 
 ## How the sync works
 
-Snippets live in a single JSON file at `~/.snippet-manager/data.json`
-(`packages/core/src/store.ts`). `watchStore()` uses chokidar to watch that file and
-calls back with the fresh snippet list whenever it changes. Both the VS Code extension
-and the Electron app's main process subscribe to it on startup, so editing a snippet in
-one app updates the other without a reload.
+Snippets live in a single `data.json` in the OS's standard app-data directory (e.g.
+`%APPDATA%\snippet-manager` on Windows, `~/Library/Application Support/snippet-manager`
+on macOS) — see `packages/core/src/store.ts`. `watchStore()` uses chokidar to watch that
+file and calls back with the fresh snippet list whenever it changes. Both the VS Code
+extension and the Electron app's main process subscribe to it on startup, so editing a
+snippet in one app updates the other without a reload.
+
+The store location can be relocated (Electron app → Settings → Data location). That
+writes a small pointer file at the default location recording the chosen folder; every
+process — including ones already running — resolves the same path from it, so relocating
+never breaks the sync.
 
 The Electron renderer never imports `@snippet/core` directly — the main process owns
 the store and exposes it to the renderer over IPC (see `packages/electron-app/electron`).
@@ -99,21 +105,30 @@ cd packages/electron-app
 npm run dev
 ```
 
-Two-pane layout: language/tag filters on the left, snippet list + code detail view on
-the right. Settings (top-right of the header):
+Two-pane layout: language/category/tag filters on the left, snippet list + code detail
+view on the right. Header controls:
 
 - **Theme** — light / dark / system, defaults to the OS theme on first launch, persisted
   after that via `electron-store`.
 - **Language** — EN / TH, defaults to the OS locale on first launch, persisted after an
   explicit change.
-- Per-snippet **"Hide from VS Code extension"** toggle, for snippets you don't want
-  cluttering the sidebar.
+- **Settings** — data location (view/change/reset the folder `data.json` lives in) and
+  backup & restore (export all snippets or one snippet to a `.json` file; import merges
+  with or replaces the existing store).
 
-## Packaging
+Per-snippet: a **"Hide from VS Code extension"** toggle for snippets you don't want
+cluttering the sidebar, and an **export** button on the detail view.
+
+## Packaging & updates
 
 `packages/electron-app/package.json` has an `electron-builder` config targeting
-`nsis-web` (bilingual EN/TH installer picker). `.github/workflows/release.yml` builds
-and publishes the installer + `.7z` app package to GitHub Releases on a `v*` tag push.
+`nsis-web` (bilingual EN/TH installer picker, user-selectable install directory).
+`.github/workflows/release.yml` builds and publishes the installer + `.7z` app package to
+GitHub Releases on a `v*` tag push.
+
+The packaged app checks GitHub Releases for updates on launch via `electron-updater`
+(`packages/electron-app/electron/updater.ts`) and shows a banner to download and, once
+ready, restart & install — this only runs in packaged builds, not `npm run dev`.
 
 ## License
 

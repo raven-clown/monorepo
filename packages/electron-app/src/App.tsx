@@ -2,28 +2,36 @@ import { useMemo, useState } from 'react'
 import type { NewSnippetInput, Snippet } from '@snippet/core'
 import { useSettings } from './hooks/useSettings'
 import { useSnippets } from './hooks/useSnippets'
+import { SettingsModal } from './components/SettingsModal'
+import { UpdateBanner } from './components/UpdateBanner'
 import './App.css'
 
 type FormState =
   | { mode: 'add' }
   | { mode: 'edit'; snippet: Snippet }
 
-const emptyForm = { title: '', language: '', tags: '', code: '', hiddenInVscode: false }
+const emptyForm = { title: '', language: '', category: '', tags: '', code: '', hiddenInVscode: false }
 
 function App() {
   const { language, theme, setTheme, setLanguage, t } = useSettings()
   const { snippets, add, update, remove } = useSnippets()
 
   const [languageFilter, setLanguageFilter] = useState<string | null>(null)
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
   const [tagFilter, setTagFilter] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [form, setForm] = useState<FormState | null>(null)
   const [formFields, setFormFields] = useState(emptyForm)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [showSettings, setShowSettings] = useState(false)
 
   const languages = useMemo(
     () => Array.from(new Set(snippets.map((s) => s.language))).sort(),
+    [snippets]
+  )
+  const categories = useMemo(
+    () => Array.from(new Set(snippets.map((s) => s.category).filter(Boolean))).sort(),
     [snippets]
   )
   const tags = useMemo(
@@ -35,11 +43,12 @@ function App() {
     const q = search.trim().toLowerCase()
     return snippets.filter((s) => {
       if (languageFilter && s.language !== languageFilter) return false
+      if (categoryFilter && s.category !== categoryFilter) return false
       if (tagFilter && !s.tags.includes(tagFilter)) return false
       if (q && !s.title.toLowerCase().includes(q) && !s.code.toLowerCase().includes(q)) return false
       return true
     })
-  }, [snippets, languageFilter, tagFilter, search])
+  }, [snippets, languageFilter, categoryFilter, tagFilter, search])
 
   const selected = filtered.find((s) => s.id === selectedId) ?? null
 
@@ -52,6 +61,7 @@ function App() {
     setFormFields({
       title: snippet.title,
       language: snippet.language,
+      category: snippet.category,
       tags: snippet.tags.join(', '),
       code: snippet.code,
       hiddenInVscode: snippet.hiddenInVscode,
@@ -68,6 +78,7 @@ function App() {
     const input: NewSnippetInput = {
       title: formFields.title,
       language: formFields.language,
+      category: formFields.category,
       code: formFields.code,
       tags: tagsArray,
       hiddenInVscode: formFields.hiddenInVscode,
@@ -96,6 +107,10 @@ function App() {
     if (selectedId === snippet.id) setSelectedId(null)
   }
 
+  async function exportSnippet(snippet: Snippet) {
+    await window.api.data.exportSnippet(snippet.id)
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -120,8 +135,11 @@ function App() {
               {t('themeSystem')}
             </button>
           </div>
+          <button onClick={() => setShowSettings(true)}>{t('settings')}</button>
         </div>
       </header>
+
+      <UpdateBanner t={t} />
 
       <div className="app-body">
         <aside className="sidebar">
@@ -140,6 +158,25 @@ function App() {
                 onClick={() => setLanguageFilter(lang)}
               >
                 <span>{lang}</span>
+              </li>
+            ))}
+          </ul>
+
+          <h2>{t('categoryFilter')}</h2>
+          <ul className="filter-list">
+            <li
+              className={`filter-item ${categoryFilter === null ? 'active' : ''}`}
+              onClick={() => setCategoryFilter(null)}
+            >
+              <span>{t('allCategories')}</span>
+            </li>
+            {categories.map((category) => (
+              <li
+                key={category}
+                className={`filter-item ${categoryFilter === category ? 'active' : ''}`}
+                onClick={() => setCategoryFilter(category)}
+              >
+                <span>{category}</span>
               </li>
             ))}
           </ul>
@@ -187,6 +224,7 @@ function App() {
                     <div className="snippet-row-title">{snippet.title}</div>
                     <div className="snippet-row-meta">
                       {snippet.language}
+                      {snippet.category ? ` · ${snippet.category}` : ''}
                       {snippet.tags.length ? ` · ${snippet.tags.join(', ')}` : ''}
                     </div>
                   </li>
@@ -203,6 +241,7 @@ function App() {
                     <h2>{selected.title}</h2>
                     <div className="detail-meta">
                       <span className="tag-chip">{selected.language}</span>
+                      {selected.category && <span className="tag-chip">{selected.category}</span>}
                       {selected.tags.map((tag) => (
                         <span className="tag-chip" key={tag}>
                           {tag}
@@ -216,6 +255,7 @@ function App() {
                       {selected.hiddenInVscode ? t('showInVscode') : t('hideFromVscode')}
                     </button>
                     <button onClick={() => openEditForm(selected)}>{t('edit')}</button>
+                    <button onClick={() => exportSnippet(selected)}>{t('exportThisSnippet')}</button>
                     <button onClick={() => handleDelete(selected)}>{t('delete')}</button>
                     <button className="primary" onClick={() => copy(selected)}>
                       {copiedId === selected.id ? t('copied') : t('copy')}
@@ -249,6 +289,14 @@ function App() {
               <input
                 value={formFields.language}
                 onChange={(e) => setFormFields((f) => ({ ...f, language: e.target.value }))}
+              />
+            </div>
+            <div className="field">
+              <label>{t('category')}</label>
+              <input
+                placeholder={t('categoryPlaceholder')}
+                value={formFields.category}
+                onChange={(e) => setFormFields((f) => ({ ...f, category: e.target.value }))}
               />
             </div>
             <div className="field">
@@ -287,6 +335,8 @@ function App() {
           </div>
         </div>
       )}
+
+      {showSettings && <SettingsModal t={t} onClose={() => setShowSettings(false)} />}
     </div>
   )
 }

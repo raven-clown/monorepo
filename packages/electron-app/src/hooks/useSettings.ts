@@ -32,7 +32,10 @@ export function useSettings() {
     window.api.settings.setLanguage(language).then(setSettings)
   }, [])
 
-  const t = useCallback((key: TranslationKey) => translate(settings.language, key), [settings.language])
+  const t = useCallback(
+    (key: TranslationKey, vars?: Record<string, string | number>) => translate(settings.language, key, vars),
+    [settings.language]
+  )
 
   return { ...settings, setTheme, setLanguage, t }
 }

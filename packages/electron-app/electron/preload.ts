@@ -1,6 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import type { NewSnippetInput, Snippet, SnippetUpdateInput } from '@snippet/core'
+import type { ImportMode, NewSnippetInput, Snippet, SnippetUpdateInput } from '@snippet/core'
 import type { Language, SettingsSnapshot, ThemePreference } from './settings'
+import type { DataLocation } from './dataLocation'
+import type { ImportPreview } from './dataTransfer'
+import type { UpdateStatus } from './updater'
 
 const api = {
   snippets: {
@@ -28,6 +31,31 @@ const api = {
       ipcRenderer.on('settings:changed', listener)
       return () => {
         ipcRenderer.removeListener('settings:changed', listener)
+      }
+    },
+  },
+  dataLocation: {
+    get: (): Promise<DataLocation> => ipcRenderer.invoke('dataLocation:get'),
+    pick: (): Promise<DataLocation | null> => ipcRenderer.invoke('dataLocation:pick'),
+    reset: (): Promise<DataLocation> => ipcRenderer.invoke('dataLocation:reset'),
+  },
+  data: {
+    exportAll: (): Promise<string | null> => ipcRenderer.invoke('data:exportAll'),
+    exportSnippet: (id: string): Promise<string | null> => ipcRenderer.invoke('data:exportSnippet', id),
+    pickImportFile: (): Promise<ImportPreview | { error: string } | null> =>
+      ipcRenderer.invoke('data:pickImportFile'),
+    import: (snippets: unknown[], mode: ImportMode): Promise<Snippet[]> =>
+      ipcRenderer.invoke('data:import', { snippets, mode }),
+  },
+  updates: {
+    check: (): Promise<void> => ipcRenderer.invoke('update:check'),
+    download: (): Promise<void> => ipcRenderer.invoke('update:download'),
+    install: (): Promise<void> => ipcRenderer.invoke('update:install'),
+    onStatus: (callback: (status: UpdateStatus) => void): (() => void) => {
+      const listener = (_event: Electron.IpcRendererEvent, status: UpdateStatus) => callback(status)
+      ipcRenderer.on('update:status', listener)
+      return () => {
+        ipcRenderer.removeListener('update:status', listener)
       }
     },
   },

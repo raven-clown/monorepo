@@ -9,6 +9,8 @@ import {
   writeStore,
   setPinned,
   recordUsage,
+  exportSnippets,
+  importSnippets,
 } from "../src";
 
 // backs up and restores the real store file so this doesn't clobber existing snippets
@@ -67,6 +69,39 @@ try {
   assert.strictEqual(deletedAgain, false, "deleting a missing snippet should return false");
 
   assert.throws(() => updateSnippet("does-not-exist", { title: "x" }), /Snippet not found/);
+
+  const categorized = addSnippet({
+    title: "Third",
+    code: "echo third",
+    language: "bash",
+    category: "DevOps",
+  });
+  assert.strictEqual(categorized.category, "DevOps", "addSnippet should keep the category");
+  assert.strictEqual(getSnippets().length, 2, "store should contain two snippets before export test");
+
+  const exported = exportSnippets();
+  assert.strictEqual(exported.length, 2, "exportSnippets() should export everything by default");
+
+  const exportedOne = exportSnippets([categorized.id]);
+  assert.deepStrictEqual(
+    exportedOne.map((s) => s.id),
+    [categorized.id],
+    "exportSnippets(ids) should filter to the given ids"
+  );
+
+  const merged = importSnippets(
+    [{ ...categorized, title: "Third (renamed)" }, { title: "Imported new", code: "x", language: "go" }],
+    "merge"
+  );
+  assert.strictEqual(merged.length, 3, "merge import should update one and add one");
+  assert.ok(
+    merged.find((s) => s.id === categorized.id)?.title === "Third (renamed)",
+    "merge import should overwrite matching ids"
+  );
+
+  const replaced = importSnippets([{ title: "Only this one", code: "y", language: "rust" }], "replace");
+  assert.strictEqual(replaced.length, 1, "replace import should wipe existing snippets");
+  assert.strictEqual(getSnippets().length, 1, "store should reflect the replace import");
 
   console.log("All @snippet/core CRUD tests passed.");
 } finally {

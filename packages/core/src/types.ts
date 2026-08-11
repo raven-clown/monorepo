@@ -3,6 +3,7 @@ export interface Snippet {
   title: string;
   code: string;
   language: string;
+  category: string;
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -13,10 +14,13 @@ export interface Snippet {
 }
 
 export type NewSnippetInput = Pick<Snippet, "title" | "code" | "language"> & {
+  category?: string;
   tags?: string[];
   hiddenInVscode?: boolean;
 };
 
 export type SnippetUpdateInput = Partial<
-  Pick<Snippet, "title" | "code" | "language" | "tags" | "hiddenInVscode">
+  Pick<Snippet, "title" | "code" | "language" | "category" | "tags" | "hiddenInVscode">
 >;
+
+export type ImportMode = "merge" | "replace";

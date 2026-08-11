@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, nativeTheme } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import type { NewSnippetInput, SnippetUpdateInput } from '@snippet/core'
+import type { ImportMode, NewSnippetInput, SnippetUpdateInput } from '@snippet/core'
 import {
   getSettingsSnapshot,
   resolveTheme,
@@ -11,6 +11,9 @@ import {
   type Language,
   type ThemePreference,
 } from './settings'
+import { getDataLocation, pickDataLocation, resetDataLocation } from './dataLocation'
+import { exportAllSnippets, exportOneSnippet, importSnippets, pickImportFile } from './dataTransfer'
+import { checkForUpdates, downloadUpdate, installUpdate, setupAutoUpdater } from './updater'
 
 const require = createRequire(import.meta.url)
 // required at runtime instead of imported - rollup can't cleanly bundle this
@@ -74,6 +77,21 @@ function registerIpcHandlers() {
     return snapshot
   })
 
+  ipcMain.handle('dataLocation:get', () => getDataLocation(core))
+  ipcMain.handle('dataLocation:pick', () => pickDataLocation(core, win))
+  ipcMain.handle('dataLocation:reset', () => resetDataLocation(core))
+
+  ipcMain.handle('data:exportAll', () => exportAllSnippets(core, win))
+  ipcMain.handle('data:exportSnippet', (_event, id: string) => exportOneSnippet(core, win, id))
+  ipcMain.handle('data:pickImportFile', () => pickImportFile(win))
+  ipcMain.handle('data:import', (_event, { snippets, mode }: { snippets: unknown[]; mode: ImportMode }) =>
+    importSnippets(core, snippets, mode)
+  )
+
+  ipcMain.handle('update:check', () => checkForUpdates())
+  ipcMain.handle('update:download', () => downloadUpdate())
+  ipcMain.handle('update:install', () => installUpdate())
+
   core.watchStore((snippets) => {
     broadcast('snippets:changed', snippets)
   })
@@ -124,4 +142,7 @@ app.on('activate', () => {
 app.whenReady().then(() => {
   registerIpcHandlers()
   createWindow()
+  if (app.isPackaged) {
+    setupAutoUpdater()
+  }
 })

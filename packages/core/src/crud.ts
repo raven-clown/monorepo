@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
-import { NewSnippetInput, Snippet, SnippetUpdateInput } from "./types";
-import { readStore, writeStore } from "./store";
+import { ImportMode, NewSnippetInput, Snippet, SnippetUpdateInput } from "./types";
+import { normalizeSnippet, readStore, writeStore } from "./store";
 
 export function getSnippets(): Snippet[] {
   return readStore();
@@ -13,6 +13,7 @@ export function addSnippet(input: NewSnippetInput): Snippet {
     title: input.title,
     code: input.code,
     language: input.language,
+    category: input.category ?? "",
     tags: input.tags ?? [],
     createdAt: now,
     updatedAt: now,
@@ -89,4 +90,29 @@ export function deleteSnippet(id: string): boolean {
     writeStore(next);
   }
   return deleted;
+}
+
+export function exportSnippets(ids?: string[]): Snippet[] {
+  const snippets = readStore();
+  return ids ? snippets.filter((s) => ids.includes(s.id)) : snippets;
+}
+
+export function importSnippets(imported: unknown[], mode: ImportMode = "merge"): Snippet[] {
+  const sanitized = imported
+    .filter((s): s is Partial<Snippet> => typeof s === "object" && s !== null)
+    .map((s) => normalizeSnippet({ ...s, id: (s as Partial<Snippet>).id ?? randomUUID() }));
+
+  if (mode === "replace") {
+    writeStore(sanitized);
+    return sanitized;
+  }
+
+  const existing = readStore();
+  const byId = new Map(existing.map((s) => [s.id, s] as const));
+  for (const s of sanitized) {
+    byId.set(s.id, s);
+  }
+  const merged = Array.from(byId.values());
+  writeStore(merged);
+  return merged;
 }

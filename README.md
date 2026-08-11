@@ -16,6 +16,35 @@ packages/
 Both apps depend on `@snippet/core` as a workspace package and never touch the
 filesystem directly — all reads/writes go through `packages/core`.
 
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph electron["Electron App"]
+        renderer["Renderer (React)"]
+        main["Main process"]
+        renderer <-->|"IPC"| main
+    end
+
+    subgraph vscode["VS Code Extension"]
+        tree["Sidebar tree view + commands"]
+    end
+
+    core["@snippet/core\n(CRUD + watchStore)"]
+    file[("~/.snippet-manager/data.json")]
+
+    main --> core
+    tree --> core
+    core <--> file
+    core -.->|"onChange"| main
+    core -.->|"onChange"| tree
+```
+
+Both front ends only ever call into `@snippet/core`. The core module is the only thing
+that touches `data.json`, and `watchStore()` (backed by chokidar) is what pushes changes
+back out to whichever app didn't make them — that's the entire sync mechanism, no
+polling, no server.
+
 ## How the sync works
 
 Snippets live in a single JSON file at `~/.snippet-manager/data.json`

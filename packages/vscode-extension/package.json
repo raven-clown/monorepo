@@ -1,0 +1,208 @@
+{
+  "name": "snippet-manager",
+  "displayName": "Snippet Manager",
+  "description": "Manage and reuse code snippets, synced with the Snippet Manager desktop app",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.125.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "icon": "resources/icon.svg",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "snippetManager",
+          "title": "Snippet Manager",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "snippetManager": [
+        {
+          "id": "snippetManagerView",
+          "name": "Snippets"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "snippetManagerView",
+        "contents": "No snippets yet.\nSelect some code in the editor, then add it as a snippet.\n[Add Snippet](command:snippet-manager.addSnippet)\nNothing to select yet?\n[Add Snippet (Blank)](command:snippet-manager.addSnippetBlank)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "snippet-manager.addSnippet",
+        "title": "Add Snippet",
+        "category": "Snippet Manager",
+        "icon": "$(add)"
+      },
+      {
+        "command": "snippet-manager.addSnippetBlank",
+        "title": "Add Snippet (Blank)",
+        "category": "Snippet Manager",
+        "icon": "$(new-file)"
+      },
+      {
+        "command": "snippet-manager.saveAsSnippet",
+        "title": "Save As Snippet",
+        "category": "Snippet Manager"
+      },
+      {
+        "command": "snippet-manager.deleteSnippet",
+        "title": "Delete Snippet",
+        "category": "Snippet Manager",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "snippet-manager.copySnippet",
+        "title": "Copy Snippet",
+        "category": "Snippet Manager",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "snippet-manager.pinSnippet",
+        "title": "Pin Snippet",
+        "category": "Snippet Manager",
+        "icon": "$(pin)"
+      },
+      {
+        "command": "snippet-manager.unpinSnippet",
+        "title": "Unpin Snippet",
+        "category": "Snippet Manager",
+        "icon": "$(pinned)"
+      },
+      {
+        "command": "snippet-manager.search",
+        "title": "Search Snippets",
+        "category": "Snippet Manager",
+        "icon": "$(search)"
+      },
+      {
+        "command": "snippet-manager.refresh",
+        "title": "Refresh",
+        "category": "Snippet Manager",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "snippet-manager.addSnippet",
+          "when": "view == snippetManagerView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "snippet-manager.addSnippetBlank",
+          "when": "view == snippetManagerView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "snippet-manager.search",
+          "when": "view == snippetManagerView",
+          "group": "navigation@3"
+        },
+        {
+          "command": "snippet-manager.refresh",
+          "when": "view == snippetManagerView",
+          "group": "navigation@4"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "snippet-manager.copySnippet",
+          "when": "view == snippetManagerView && viewItem =~ /^snippet/",
+          "group": "inline@1"
+        },
+        {
+          "command": "snippet-manager.pinSnippet",
+          "when": "view == snippetManagerView && viewItem == snippet-unpinned",
+          "group": "inline@2"
+        },
+        {
+          "command": "snippet-manager.unpinSnippet",
+          "when": "view == snippetManagerView && viewItem == snippet-pinned",
+          "group": "inline@2"
+        },
+        {
+          "command": "snippet-manager.deleteSnippet",
+          "when": "view == snippetManagerView && viewItem =~ /^snippet/",
+          "group": "inline@3"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "snippet-manager.copySnippet",
+          "when": "false"
+        },
+        {
+          "command": "snippet-manager.deleteSnippet",
+          "when": "false"
+        },
+        {
+          "command": "snippet-manager.pinSnippet",
+          "when": "false"
+        },
+        {
+          "command": "snippet-manager.unpinSnippet",
+          "when": "false"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Snippet Manager",
+      "properties": {
+        "snippetManager.clickAction": {
+          "type": "string",
+          "enum": ["copy", "insert", "open"],
+          "enumDescriptions": [
+            "Copy the snippet to the clipboard",
+            "Insert the snippet at the cursor in the active editor",
+            "Open the snippet in a new untitled editor"
+          ],
+          "default": "copy",
+          "description": "What happens when you click a snippet in the sidebar."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "dependencies": {
+    "@snippet/core": "*"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.125.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "24.x",
+    "typescript-eslint": "^8.61.1",
+    "eslint": "^10.5.0",
+    "typescript": "^6.0.3",
+    "ts-loader": "^9.6.2",
+    "webpack": "^5.107.2",
+    "webpack-cli": "^7.0.3",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.0.0"
+  },
+  "overrides": {
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
+  }
+}

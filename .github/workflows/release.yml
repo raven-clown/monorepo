@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build --workspace=@snippet/core
+
+      # electron-builder (nsis-web target) produces both the small installer
+      # exe and the app-${version}.7z package, and --publish always uploads
+      # both to the GitHub Release for this tag.
+      - name: Build and publish installer
+        run: npm run build --workspace=electron-app -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

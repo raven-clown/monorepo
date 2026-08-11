@@ -1,0 +1,21 @@
+node_modules/
+dist/
+out/
+*.vsix
+.DS_Store
+
+.claude/
+
+# electron-vite / vite
+packages/electron-app/dist/
+packages/electron-app/dist-electron/
+packages/electron-app/out/
+packages/electron-app/release/
+
+# vscode extension packaging
+packages/vscode-extension/dist/
+packages/vscode-extension/out/
+
+# logs
+npm-debug.log*
+*.log

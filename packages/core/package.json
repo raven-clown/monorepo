@@ -1,0 +1,25 @@
+{
+  "name": "@snippet/core",
+  "version": "1.0.0",
+  "description": "Shared, UI-agnostic core logic for the snippet manager (storage, CRUD, file watching)",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "tsc -p tsconfig.json --watch",
+    "test": "node --require ts-node/register/transpile-only test/crud.test.ts",
+    "pretest": "npm run build"
+  },
+  "dependencies": {
+    "chokidar": "^3.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

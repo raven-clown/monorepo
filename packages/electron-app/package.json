@@ -1,7 +1,7 @@
 {
   "name": "electron-app",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -21,7 +21,8 @@
       "dist-electron"
     ],
     "win": {
-      "target": "nsis-web"
+      "target": "nsis-web",
+      "icon": "public/icon.png"
     },
     "nsisWeb": {
       "oneClick": false,
@@ -47,6 +48,7 @@
     "@snippet/core": "*",
     "electron-store": "^8.2.0",
     "electron-updater": "^6.3.0",
+    "lucide-react": "^0.460.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },

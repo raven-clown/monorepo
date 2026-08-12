@@ -24,5 +24,10 @@ export function useSnippets() {
     setSnippets(await window.api.snippets.getAll())
   }, [])
 
-  return { snippets, add, update, remove }
+  const setPinned = useCallback(async (id: string, pinned: boolean) => {
+    await window.api.snippets.setPinned(id, pinned)
+    setSnippets(await window.api.snippets.getAll())
+  }, [])
+
+  return { snippets, add, update, remove, setPinned }
 }

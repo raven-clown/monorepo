@@ -11,6 +11,14 @@ import {
   recordUsage,
   exportSnippets,
   importSnippets,
+  addCategory,
+  getCategories,
+  updateCategory,
+  setCategoryPinned,
+  moveCategory,
+  reorderCategory,
+  deleteCategory,
+  readStore,
 } from "../src";
 
 // backs up and restores the real store file so this doesn't clobber existing snippets
@@ -26,7 +34,7 @@ function restore() {
 }
 
 try {
-  writeStore([]); // also creates ~/.snippet-manager/data.json if missing
+  writeStore({ snippets: [], categories: [] }); // also creates the data file if missing
 
   assert.deepStrictEqual(getSnippets(), [], "store should start empty");
 
@@ -39,6 +47,7 @@ try {
   assert.ok(created.id, "addSnippet should assign an id");
   assert.strictEqual(created.pinned, false, "new snippets start unpinned");
   assert.strictEqual(created.useCount, 0, "new snippets start with useCount 0");
+  assert.strictEqual(created.categoryId, null, "new snippets start uncategorized");
   assert.strictEqual(getSnippets().length, 1, "store should contain one snippet");
 
   const pinned = setPinned(created.id, true);
@@ -70,32 +79,101 @@ try {
 
   assert.throws(() => updateSnippet("does-not-exist", { title: "x" }), /Snippet not found/);
 
-  const categorized = addSnippet({
+  // ---------- Categories ----------
+
+  const devops = addCategory({ name: "DevOps" });
+  assert.strictEqual(devops.parentId, null, "top-level category has no parent");
+  assert.strictEqual(devops.pinned, false, "new categories start unpinned");
+
+  const ci = addCategory({ name: "CI", parentId: devops.id });
+  assert.strictEqual(ci.parentId, devops.id, "addCategory should nest under the given parent");
+  assert.strictEqual(ci.order, 0, "first child gets order 0");
+
+  const cd = addCategory({ name: "CD", parentId: devops.id });
+  assert.strictEqual(cd.order, 1, "second sibling gets the next order");
+
+  const renamed = updateCategory(ci.id, { name: "Continuous Integration" });
+  assert.strictEqual(renamed.name, "Continuous Integration", "updateCategory should rename");
+
+  const pinnedCategory = setCategoryPinned(devops.id, true);
+  assert.strictEqual(pinnedCategory.pinned, true, "setCategoryPinned should flip pinned");
+
+  const afterReorder = reorderCategory(cd.id, "up");
+  const cdAfter = afterReorder.find((c) => c.id === cd.id)!;
+  const ciAfter = afterReorder.find((c) => c.id === ci.id)!;
+  assert.ok(cdAfter.order < ciAfter.order, "reorderCategory('up') should move CD before CI");
+
+  const frontend = addCategory({ name: "Frontend" });
+  const afterMove = moveCategory(cd.id, frontend.id);
+  const cdMoved = afterMove.find((c) => c.id === cd.id)!;
+  assert.strictEqual(cdMoved.parentId, frontend.id, "moveCategory should reparent");
+
+  assert.throws(
+    () => moveCategory(devops.id, ci.id),
+    /descendant/,
+    "moveCategory should refuse to move a category into its own descendant"
+  );
+
+  const categorizedSnippet = addSnippet({
     title: "Third",
     code: "echo third",
     language: "bash",
-    category: "DevOps",
+    categoryId: ci.id,
   });
-  assert.strictEqual(categorized.category, "DevOps", "addSnippet should keep the category");
-  assert.strictEqual(getSnippets().length, 2, "store should contain two snippets before export test");
+  assert.strictEqual(categorizedSnippet.categoryId, ci.id, "addSnippet should keep the categoryId");
+
+  const deletedCategory = deleteCategory(ci.id);
+  assert.strictEqual(deletedCategory, true, "deleteCategory should report success");
+  assert.strictEqual(
+    getCategories().find((c) => c.id === ci.id),
+    undefined,
+    "deleted category should be gone"
+  );
+  const reassigned = getSnippets().find((s) => s.id === categorizedSnippet.id)!;
+  assert.strictEqual(
+    reassigned.categoryId,
+    devops.id,
+    "snippets in a deleted category fall back to its parent"
+  );
+
+  // ---------- Legacy migration (old free-text `category` string -> Category entity) ----------
+
+  fs.writeFileSync(
+    storePath,
+    JSON.stringify([
+      { id: "legacy-1", title: "Legacy", code: "x", language: "js", category: "Legacy Bucket" },
+    ]),
+    "utf-8"
+  );
+  const migrated = readStore();
+  assert.strictEqual(migrated.categories.length, 1, "migration should create one category from the legacy string");
+  assert.strictEqual(migrated.categories[0].name, "Legacy Bucket");
+  assert.strictEqual(
+    migrated.snippets[0].categoryId,
+    migrated.categories[0].id,
+    "migrated snippet should reference the new category by id"
+  );
+
+  writeStore({ snippets: [], categories: [] });
+
+  // ---------- Export / import ----------
+
+  const exportA = addSnippet({ title: "A", code: "a", language: "go" });
+  const exportB = addSnippet({ title: "B", code: "b", language: "rust" });
 
   const exported = exportSnippets();
   assert.strictEqual(exported.length, 2, "exportSnippets() should export everything by default");
 
-  const exportedOne = exportSnippets([categorized.id]);
-  assert.deepStrictEqual(
-    exportedOne.map((s) => s.id),
-    [categorized.id],
-    "exportSnippets(ids) should filter to the given ids"
-  );
+  const exportedOne = exportSnippets([exportA.id]);
+  assert.deepStrictEqual(exportedOne.map((s) => s.id), [exportA.id], "exportSnippets(ids) should filter to the given ids");
 
   const merged = importSnippets(
-    [{ ...categorized, title: "Third (renamed)" }, { title: "Imported new", code: "x", language: "go" }],
+    [{ ...exportB, title: "B (renamed)" }, { title: "Imported new", code: "x", language: "go" }],
     "merge"
   );
   assert.strictEqual(merged.length, 3, "merge import should update one and add one");
   assert.ok(
-    merged.find((s) => s.id === categorized.id)?.title === "Third (renamed)",
+    merged.find((s) => s.id === exportB.id)?.title === "B (renamed)",
     "merge import should overwrite matching ids"
   );
 

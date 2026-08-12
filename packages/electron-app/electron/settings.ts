@@ -1,19 +1,19 @@
 import { app, nativeTheme } from 'electron'
 import Store from 'electron-store'
 
-export type ThemePreference = 'light' | 'dark' | 'system'
-export type ResolvedTheme = 'light' | 'dark'
+export type Theme = 'white' | 'black' | 'color'
 export type Language = 'en' | 'th'
 
 export interface SettingsSnapshot {
-  theme: ThemePreference
-  resolvedTheme: ResolvedTheme
+  theme: Theme
   language: Language
+  onboarded: boolean
 }
 
 interface StoreSchema {
-  theme?: ThemePreference
+  theme?: Theme
   language?: Language
+  onboarded?: boolean
 }
 
 const store = new Store<StoreSchema>({ name: 'settings' })
@@ -21,6 +21,10 @@ const store = new Store<StoreSchema>({ name: 'settings' })
 export function getDefaultLanguage(): Language {
   const locale = app.getLocale() // e.g. "th", "th-TH", "en-US"
   return locale.toLowerCase().startsWith('th') ? 'th' : 'en'
+}
+
+export function getDefaultTheme(): Theme {
+  return nativeTheme.shouldUseDarkColors ? 'black' : 'white'
 }
 
 export function getLanguage(): Language {
@@ -32,28 +36,27 @@ export function setLanguage(language: Language): Language {
   return language
 }
 
-export function getThemePreference(): ThemePreference {
-  // unset -> system, which tracks nativeTheme.shouldUseDarkColors until overridden
-  return store.get('theme') ?? 'system'
+export function getTheme(): Theme {
+  return store.get('theme') ?? getDefaultTheme()
 }
 
-export function setThemePreference(theme: ThemePreference): ThemePreference {
+export function setTheme(theme: Theme): Theme {
   store.set('theme', theme)
   return theme
 }
 
-export function resolveTheme(preference: ThemePreference): ResolvedTheme {
-  if (preference === 'system') {
-    return nativeTheme.shouldUseDarkColors ? 'dark' : 'light'
-  }
-  return preference
+export function isOnboarded(): boolean {
+  return store.get('onboarded') ?? false
+}
+
+export function setOnboarded(): void {
+  store.set('onboarded', true)
 }
 
 export function getSettingsSnapshot(): SettingsSnapshot {
-  const theme = getThemePreference()
   return {
-    theme,
-    resolvedTheme: resolveTheme(theme),
+    theme: getTheme(),
     language: getLanguage(),
+    onboarded: isOnboarded(),
   }
 }

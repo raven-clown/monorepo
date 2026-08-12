@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.3.0] - 2026-08-12
+
+### Added
+- Full visual redesign of the Electron app: iOS 26–style glass materials, blur, and
+  spring motion across three themes (White / Black / Color), each sharing one accent
+  color and design token set
+- Custom frameless title bar with app icon, drag region, and minimize/maximize/close
+  controls, replacing the native Windows title bar
+- First-launch onboarding screen (hero, feature highlights, theme picker)
+- Responsive layout: compact/medium/wide breakpoints, with the sidebar collapsing to a
+  drawer and the list/detail panes stacking on narrow widths
+- Syntax-highlighted code block with line numbers in the snippet detail view
+- Nested category tree (VS Code Explorer–style): subcategories via right-click, inline
+  rename, pin, move up/down, delete (children/snippets reassigned to the parent) — core
+  now models categories as a real entity (id/parentId/order/pinned) instead of a flat
+  string, with automatic migration from the old format
+- Category picker (with inline "new category") in the Add/Edit snippet form
+- App logo replaces the placeholder icon in the title bar, onboarding, and window icon
+
+### Changed
+- Theme/language pickers consolidated into Settings only (no longer duplicated in the
+  header or onboarding)
+- Full backup export/import now bundles categories alongside snippets so the folder
+  tree round-trips
+
+### Fixed
+- Snippet list rows were center-aligned instead of left-aligned (base button style
+  leaking into a column-layout row)
+- Copy button no longer shows a truncated/misaligned label in compact width — icon only
+
 ## [0.2.0] - 2026-08-11
 
 ### Added

@@ -19,3 +19,4 @@ packages/vscode-extension/out/
 # logs
 npm-debug.log*
 *.log
+.design-preview/

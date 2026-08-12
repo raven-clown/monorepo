@@ -206,6 +206,7 @@ function App() {
               onExport={(s) => window.api.data.exportSnippet(s.id)}
               onToggleHidden={(s) => update(s.id, { hiddenInVscode: !s.hiddenInVscode })}
               onDelete={handleDelete}
+              onUpdateCode={(s, code) => update(s.id, { code })}
               t={t}
             />
           )}

@@ -61,73 +61,75 @@ export function SettingsModal({ t, theme, setTheme, language, setLanguage, isCom
         className={`glass-strong modal ${isCompact ? 'modal-drawer' : 'modal-panel'}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="modal-title">{t('settings')}</h2>
+        <div className="modal-body">
+          <h2 className="modal-title">{t('settings')}</h2>
 
-        <div className="settings-section">
-          <label className="settings-label">{t('theme')}</label>
-          <ThemeSwatches value={theme} onChange={setTheme} t={t} />
-        </div>
-
-        <div className="settings-section">
-          <label className="settings-label">{t('appLanguage')}</label>
-          <div className="lang-switch-wrap">
-            <button className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')}>
-              {t('languageEnglish')}
-            </button>
-            <button className={language === 'th' ? 'active' : ''} onClick={() => setLanguage('th')}>
-              {t('languageThai')}
-            </button>
+          <div className="settings-section">
+            <label className="settings-label">{t('theme')}</label>
+            <ThemeSwatches value={theme} onChange={setTheme} t={t} />
           </div>
-        </div>
 
-        <div className="settings-section">
-          <label className="settings-label">{t('dataLocation')}</label>
-          <div className="settings-row">
-            <code className="settings-path">{location?.path ?? '…'}</code>
-            <button onClick={() => pick()}>{t('changeLocation')}</button>
-          </div>
-          {location?.isCustom && (
-            <button className="link-btn" onClick={() => reset()}>
-              {t('resetToDefault')}
-            </button>
-          )}
-        </div>
-
-        <div className="settings-section">
-          <label className="settings-label">{t('dataBackup')}</label>
-          <div className="settings-row">
-            <button onClick={handleExportAll}>{t('exportAll')}</button>
-            <button onClick={handleImportPick}>{t('importSnippets')}</button>
-          </div>
-          {pendingImport && (
-            <div className="import-confirm">
-              <div className="settings-hint">
-                {t('importConfirmTitle', { count: pendingImport.count })} — {t('importConfirmBody')}
-              </div>
-              <div className="settings-row">
-                <button className="primary" onClick={() => handleImportConfirm('merge')}>
-                  {t('importMerge')}
-                </button>
-                <button onClick={() => handleImportConfirm('replace')}>{t('importReplace')}</button>
-                <button onClick={() => setPendingImport(null)}>{t('cancel')}</button>
-              </div>
+          <div className="settings-section">
+            <label className="settings-label">{t('appLanguage')}</label>
+            <div className="lang-switch-wrap">
+              <button className={language === 'en' ? 'active' : ''} onClick={() => setLanguage('en')}>
+                {t('languageEnglish')}
+              </button>
+              <button className={language === 'th' ? 'active' : ''} onClick={() => setLanguage('th')}>
+                {t('languageThai')}
+              </button>
             </div>
-          )}
-        </div>
+          </div>
 
-        <div className="settings-section">
-          <label className="settings-label">{t('checkUpdates')}</label>
-          <button onClick={handleCheckUpdates} disabled={checking}>
-            {checking ? t('updateChecking') : t('checkUpdates')}
-          </button>
-        </div>
+          <div className="settings-section">
+            <label className="settings-label">{t('dataLocation')}</label>
+            <div className="settings-row">
+              <code className="settings-path">{location?.path ?? '…'}</code>
+              <button onClick={() => pick()}>{t('changeLocation')}</button>
+            </div>
+            {location?.isCustom && (
+              <button className="link-btn" onClick={() => reset()}>
+                {t('resetToDefault')}
+              </button>
+            )}
+          </div>
 
-        {message && <div className="settings-message">{message}</div>}
+          <div className="settings-section">
+            <label className="settings-label">{t('dataBackup')}</label>
+            <div className="settings-row">
+              <button onClick={handleExportAll}>{t('exportAll')}</button>
+              <button onClick={handleImportPick}>{t('importSnippets')}</button>
+            </div>
+            {pendingImport && (
+              <div className="import-confirm">
+                <div className="settings-hint">
+                  {t('importConfirmTitle', { count: pendingImport.count })} — {t('importConfirmBody')}
+                </div>
+                <div className="settings-row">
+                  <button className="primary" onClick={() => handleImportConfirm('merge')}>
+                    {t('importMerge')}
+                  </button>
+                  <button onClick={() => handleImportConfirm('replace')}>{t('importReplace')}</button>
+                  <button onClick={() => setPendingImport(null)}>{t('cancel')}</button>
+                </div>
+              </div>
+            )}
+          </div>
 
-        <div className="modal-actions">
-          <button className="primary" onClick={onClose}>
-            {t('close')}
-          </button>
+          <div className="settings-section">
+            <label className="settings-label">{t('checkUpdates')}</label>
+            <button onClick={handleCheckUpdates} disabled={checking}>
+              {checking ? t('updateChecking') : t('checkUpdates')}
+            </button>
+          </div>
+
+          {message && <div className="settings-message">{message}</div>}
+
+          <div className="modal-actions">
+            <button className="primary" onClick={onClose}>
+              {t('close')}
+            </button>
+          </div>
         </div>
       </div>
     </div>

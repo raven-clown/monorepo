@@ -1,7 +1,7 @@
 {
   "name": "electron-app",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Snippet Manager desktop app",
   "author": "SNOWFLEX",
   "type": "module",
@@ -36,13 +36,17 @@
         "en_US",
         "th_TH"
       ],
-      "language": "1033"
+      "language": "1033",
+      "installerHeader": "build/installerHeader.bmp",
+      "installerSidebar": "build/installerSidebar.bmp",
+      "uninstallerSidebar": "build/installerSidebar.bmp"
     },
     "publish": [
       {
         "provider": "github",
         "owner": "raven-clown",
-        "repo": "monorepo"
+        "repo": "monorepo",
+        "releaseType": "release"
       }
     ]
   },

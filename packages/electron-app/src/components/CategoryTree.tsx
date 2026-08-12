@@ -75,6 +75,9 @@ export function CategoryTree({
   const [createValue, setCreateValue] = useState('')
   const [dragItem, setDragItem] = useState<DragItem | null>(null)
   const [dropTarget, setDropTarget] = useState<DropTarget | null>(null)
+  const [confirmTarget, setConfirmTarget] = useState<
+    { type: 'category'; id: string; name: string } | { type: 'snippet'; id: string } | null
+  >(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -454,9 +457,7 @@ export function CategoryTree({
             className="menu-item menu-item-danger"
             onClick={() => {
               setMenu(null)
-              if (window.confirm(t('confirmDeleteCategory', { name: menuCategory.name }))) {
-                onDelete(menuCategory.id)
-              }
+              setConfirmTarget({ type: 'category', id: menuCategory.id, name: menuCategory.name })
             }}
           >
             {t('delete')}
@@ -487,13 +488,38 @@ export function CategoryTree({
             className="menu-item menu-item-danger"
             onClick={() => {
               setMenu(null)
-              if (window.confirm(t('confirmDelete'))) {
-                onDeleteSnippet(menuSnippet.id)
-              }
+              setConfirmTarget({ type: 'snippet', id: menuSnippet.id })
             }}
           >
             {t('delete')}
           </button>
+        </div>
+      )}
+
+      {confirmTarget && (
+        <div className="modal-backdrop" onClick={() => setConfirmTarget(null)}>
+          <div className="glass-strong modal modal-confirm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-body">
+              <h2 className="modal-title">
+                {confirmTarget.type === 'category'
+                  ? t('confirmDeleteCategory', { name: confirmTarget.name })
+                  : t('confirmDelete')}
+              </h2>
+              <div className="modal-actions">
+                <button onClick={() => setConfirmTarget(null)}>{t('no')}</button>
+                <button
+                  className="danger"
+                  onClick={() => {
+                    if (confirmTarget.type === 'category') onDelete(confirmTarget.id)
+                    else onDeleteSnippet(confirmTarget.id)
+                    setConfirmTarget(null)
+                  }}
+                >
+                  {t('yes')}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

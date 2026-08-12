@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.6.0] - 2026-08-12
+
+### Added
+- Code block in the snippet detail view is now editable directly — click into it and
+  type, no need to open Edit first
+- Branded installer: the Windows setup wizard now uses the app's icon and color
+  gradient instead of the generic default NSIS look
+
+### Changed
+- Deleting a category or snippet now shows a themed confirm dialog instead of the
+  native OS popup
+
+### Fixed
+- Category tree: soften the selected/drop-target highlight on the White theme (was a
+  solid opaque block that visually merged with an adjacent highlighted row) and add
+  a little breathing room between rows
+- Removed a stray scrollbar that could appear at the bottom of the window
+- Settings modal: the scrollbar could spill outside the modal's rounded corners
+- GitHub Actions release publishing now creates a public release immediately instead
+  of a hidden draft, and the web installer downloads the correctly named package file
+
 ## [0.5.0] - 2026-08-12
 
 ### Added

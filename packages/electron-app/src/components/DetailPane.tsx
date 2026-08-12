@@ -15,6 +15,7 @@ interface Props {
   onExport: (snippet: Snippet) => void
   onToggleHidden: (snippet: Snippet) => void
   onDelete: (snippet: Snippet) => void
+  onUpdateCode: (snippet: Snippet, code: string) => void
   t: (key: TranslationKey, vars?: Record<string, string | number>) => string
 }
 
@@ -28,18 +29,15 @@ export function DetailPane({
   onExport,
   onToggleHidden,
   onDelete,
+  onUpdateCode,
   t,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [editingCode, setEditingCode] = useState(false)
+  const [codeValue, setCodeValue] = useState(snippet?.code ?? '')
   const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setMenuOpen(false)
-    setConfirmingDelete(false)
-    setCopied(false)
-  }, [snippet?.id])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -62,6 +60,13 @@ export function DetailPane({
     await navigator.clipboard.writeText(snippet!.code)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
+  }
+
+  function commitCode() {
+    setEditingCode(false)
+    if (snippet && codeValue !== snippet.code) {
+      onUpdateCode(snippet, codeValue)
+    }
   }
 
   const lines = buildCodeLines(snippet.code)
@@ -143,20 +148,37 @@ export function DetailPane({
         {snippet.hiddenInVscode && <span className="tag-chip">{t('hiddenBadge')}</span>}
       </div>
 
-      <pre className="code-block">
-        {lines.map((line) => (
-          <div className="code-line" key={line.num}>
-            <span className="line-num">{line.num}</span>
-            <span className="line-content">
-              {line.tokens.map((tok) => (
-                <span key={tok.key} className={`tok-${tok.kind}`}>
-                  {tok.text}
-                </span>
-              ))}
-            </span>
-          </div>
-        ))}
-      </pre>
+      {editingCode ? (
+        <textarea
+          className="code-block code-edit-area"
+          value={codeValue}
+          autoFocus
+          spellCheck={false}
+          onChange={(e) => setCodeValue(e.target.value)}
+          onBlur={commitCode}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setCodeValue(snippet.code)
+              setEditingCode(false)
+            }
+          }}
+        />
+      ) : (
+        <pre className="code-block code-block-editable" onClick={() => setEditingCode(true)} tabIndex={0}>
+          {lines.map((line) => (
+            <div className="code-line" key={line.num}>
+              <span className="line-num">{line.num}</span>
+              <span className="line-content">
+                {line.tokens.map((tok) => (
+                  <span key={tok.key} className={`tok-${tok.kind}`}>
+                    {tok.text}
+                  </span>
+                ))}
+              </span>
+            </div>
+          ))}
+        </pre>
+      )}
     </div>
   )
 }

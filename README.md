@@ -11,6 +11,7 @@ packages/
   core/               @snippet/core - storage, CRUD, file watching. No UI.
   vscode-extension/   Sidebar tree view + commands.
   electron-app/       Two-pane desktop app (React + Vite + Electron).
+  installer/          Custom-branded Windows installer/uninstaller for electron-app.
 ```
 
 Both apps depend on `@snippet/core` as a workspace package and never touch the
@@ -121,10 +122,19 @@ cluttering the sidebar, and an **export** button on the detail view.
 
 ## Packaging & updates
 
-`packages/electron-app/package.json` has an `electron-builder` config targeting
-`nsis-web` (bilingual EN/TH installer picker, user-selectable install directory).
-`.github/workflows/release.yml` builds and publishes the installer + `.7z` app package to
-GitHub Releases on a `v*` tag push.
+Two separate installers get built and published to GitHub Releases on a `v*` tag push
+(`.github/workflows/release.yml`):
+
+- **`packages/installer`** — a small custom-branded Electron app (iOS 26 look, matching
+  the main app) that end users actually download and run. It bundles a prebuilt copy of
+  `electron-app` (see `scripts/prepare-payload.mjs`), copies it to
+  `%LOCALAPPDATA%\Programs\Snippet Manager` (customizable), creates Start Menu/Desktop
+  shortcuts, and registers a normal Windows "Apps & Features" uninstall entry. Packaged
+  via `electron-builder` with the `portable` Windows target — a single self-contained
+  `.exe`, no NSIS UI involved.
+- **`packages/electron-app`**'s own `electron-builder` config (`nsis-web` target) is kept
+  only so `electron-updater` has something to silently update to in the background — end
+  users never interact with this installer directly.
 
 The packaged app checks GitHub Releases for updates on launch via `electron-updater`
 (`packages/electron-app/electron/updater.ts`) and shows a banner to download and, once

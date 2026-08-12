@@ -1,21 +1,20 @@
 {
-  "name": "electron-app",
+  "name": "installer",
   "private": true,
   "version": "0.7.0",
-  "description": "Snippet Manager desktop app",
+  "description": "Custom-branded Windows installer/uninstaller for Snippet Manager",
   "author": "SNOWFLEX",
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
-    "build:unpacked": "tsc && vite build && electron-builder --win dir",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "prepare-payload": "node scripts/prepare-payload.mjs",
+    "build": "npm run prepare-payload && tsc && vite build && electron-builder",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
   },
   "build": {
-    "appId": "com.raven.snippetmanager",
-    "productName": "Snippet Manager",
+    "appId": "com.raven.snippetmanager.installer",
+    "productName": "Snippet Manager Setup",
     "directories": {
       "output": "release/${version}"
     },
@@ -23,24 +22,20 @@
       "dist",
       "dist-electron"
     ],
+    "extraResources": [
+      {
+        "from": "payload",
+        "to": "app"
+      }
+    ],
     "win": {
-      "target": "nsis-web",
-      "icon": "public/icon.png"
+      "target": "portable",
+      "icon": "public/icon.png",
+      "artifactName": "Snippet-Manager-Setup-${version}.${ext}"
     },
-    "nsisWeb": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "appPackageUrl": "https://github.com/raven-clown/monorepo/releases/download/v${version}/electron-app-${version}-x64.nsis.7z",
-      "displayLanguageSelector": true,
-      "installerLanguages": [
-        "en_US",
-        "th_TH"
-      ],
-      "language": "1033",
-      "installerHeader": "build/installerHeader.bmp",
-      "installerSidebar": "build/installerSidebar.bmp",
-      "uninstallerSidebar": "build/installerSidebar.bmp"
+    "portable": {
+      "artifactName": "Snippet-Manager-Setup-${version}.${ext}",
+      "unpackDirName": "snippet-manager-setup-runtime"
     },
     "publish": [
       {
@@ -52,9 +47,6 @@
     ]
   },
   "dependencies": {
-    "@snippet/core": "*",
-    "electron-store": "^8.2.0",
-    "electron-updater": "^6.3.0",
     "lucide-react": "^0.460.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

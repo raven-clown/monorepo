@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.7.0] - 2026-08-12
+
+### Added
+- Brand new custom installer (`packages/installer`) replacing the NSIS wizard as the
+  download users actually run — a small branded Electron app (same look as the main
+  app: icon, gradient, EN/TH toggle) that installs to `%LOCALAPPDATA%\Programs`,
+  creates Start Menu/Desktop shortcuts, and registers a normal Windows "Apps &
+  Features" uninstall entry, with an in-app uninstall flow (optionally wiping saved
+  snippets/settings too)
+
+### Changed
+- The old NSIS/nsis-web installer is no longer the user-facing download; it's kept
+  running only in the background so in-app auto-update (electron-updater) keeps working
+
 ## [0.6.0] - 2026-08-12
 
 ### Added

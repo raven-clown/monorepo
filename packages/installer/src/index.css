@@ -1,0 +1,288 @@
+:root {
+  color-scheme: dark;
+  --font-display: 'Outfit', 'Noto Sans Thai', sans-serif;
+  --font-ui: 'Inter', 'Noto Sans Thai', sans-serif;
+  --gradient-start: #e0735a;
+  --gradient-end: #7c3f73;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  color: white;
+}
+
+button {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  padding: 9px 16px;
+  transition: all 0.18s ease;
+}
+
+button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.primary {
+  background: white;
+  color: #7c3f73;
+  font-weight: 700;
+  border-color: transparent;
+  box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.4);
+}
+
+button.link {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: underline;
+  padding: 4px;
+  font-size: 12px;
+}
+
+input[type='text'] {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: white;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(150deg, var(--gradient-start), var(--gradient-end));
+}
+
+.drag-bar {
+  height: 32px;
+  min-height: 32px;
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 6px;
+}
+
+.close-btn {
+  -webkit-app-region: no-drag;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 32px 32px;
+  text-align: center;
+  animation: floatIn 0.4s ease;
+  min-height: 0;
+}
+
+.app-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.app-icon img {
+  width: 52px;
+  height: 52px;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 24px;
+  margin: 4px 0 0;
+}
+
+.hero-sub {
+  font-size: 12.5px;
+  opacity: 0.85;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.actions .primary {
+  width: 200px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.customize-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  animation: floatIn 0.3s ease;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.path-row {
+  display: flex;
+  gap: 6px;
+}
+
+.path-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.check-row input {
+  width: 15px;
+  height: 15px;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: white;
+  transition: width 0.15s ease;
+}
+
+.progress-label {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+}
+
+.lang-toggle {
+  -webkit-app-region: no-drag;
+  display: flex;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 2px;
+  margin-right: 6px;
+}
+
+.lang-toggle button {
+  border: none;
+  padding: 3px 8px;
+  font-size: 10.5px;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.lang-toggle button.active {
+  background: white;
+  color: #7c3f73;
+  font-weight: 700;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #ffd4d4;
+}

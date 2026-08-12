@@ -1,7 +1,9 @@
 {
   "name": "electron-app",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.5.0",
+  "description": "Snippet Manager desktop app",
+  "author": "SNOWFLEX",
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
@@ -28,7 +30,7 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": true,
-      "appPackageUrl": "https://github.com/raven-clown/monorepo/releases/download/v${version}/app-${version}.7z",
+      "appPackageUrl": "https://github.com/raven-clown/monorepo/releases/download/v${version}/electron-app-${version}-x64.nsis.7z",
       "displayLanguageSelector": true,
       "installerLanguages": [
         "en_US",
@@ -58,7 +60,7 @@
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "@vitejs/plugin-react": "^4.2.1",
-    "electron": "^43.3.0",
+    "electron": "43.3.0",
     "electron-builder": "^26.15.3",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",

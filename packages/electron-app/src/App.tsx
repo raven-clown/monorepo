@@ -103,17 +103,6 @@ function App() {
     }
   }
 
-  async function createSnippetIn(categoryId: string) {
-    const created = await add({
-      title: t('untitledSnippet'),
-      language: 'plaintext',
-      code: '',
-      categoryId,
-    })
-    selectSnippet(created.id)
-    setForm({ mode: 'edit', snippet: created })
-  }
-
   if (!loaded) {
     return null
   }
@@ -162,8 +151,11 @@ function App() {
           tagGroup={tagGroup}
           categoryTreeProps={{
             categories,
+            snippets,
             activeId: categoryFilter,
+            activeSnippetId: selectedId,
             onSelect: setCategoryFilter,
+            onSelectSnippet: selectSnippet,
             onAdd: categoriesApi.add,
             onRename: categoriesApi.rename,
             onSetPinned: categoriesApi.setPinned,
@@ -173,7 +165,18 @@ function App() {
               await categoriesApi.remove(id)
               if (categoryFilter === id) setCategoryFilter(null)
             },
-            onNewSnippet: createSnippetIn,
+            onCreateSnippet: (categoryId) =>
+              add({ title: t('untitledSnippet'), language: 'plaintext', code: '', categoryId }),
+            onRenameSnippet: (id, title) => update(id, { title }),
+            onMoveSnippet: (id, categoryId) => update(id, { categoryId }),
+            onEditSnippet: (id) => {
+              const s = snippets.find((sn) => sn.id === id)
+              if (s) setForm({ mode: 'edit', snippet: s })
+            },
+            onDeleteSnippet: (id) => {
+              const s = snippets.find((sn) => sn.id === id)
+              if (s) handleDelete(s)
+            },
             t,
           }}
           variant={isCompact ? 'drawer' : 'panel'}

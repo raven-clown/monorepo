@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0] - 2026-08-12
+
+### Added
+- Snippets now appear directly nested under their category in the sidebar tree, like
+  files under folders in VS Code — no need to click into a category to see what's
+  inside, and they're draggable onto any category to reparent them
+- Right-click "New snippet" creates it instantly and drops straight into inline
+  rename in the tree — no edit form pops up; language/tags/code can be filled in later
+
+### Fixed
+- Focus ring on inputs/selects replaced with a soft glow (was a harsh solid outline)
+- Right-click context menu on the category tree no longer stretches across most of
+  the window width
+
 ## [0.4.0] - 2026-08-12
 
 ### Added

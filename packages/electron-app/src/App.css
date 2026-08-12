@@ -377,6 +377,7 @@
 
 .tree-context-menu {
   min-width: 170px;
+  right: auto;
 }
 
 .tree-row.dragging {
@@ -584,13 +585,13 @@
 .action-menu {
   position: absolute;
   top: 40px;
-  right: 0;
+  right: auto;
   min-width: 180px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px;
-  border-radius: 14px;
+  gap: 0;
+  padding: 4px;
+  border-radius: 12px;
   z-index: 25;
   box-shadow: var(--shadow);
 }
@@ -598,12 +599,12 @@
 .menu-item {
   text-align: left;
   justify-content: flex-start;
-  padding: 9px 12px;
-  border-radius: 9px;
+  padding: 6px 10px;
+  border-radius: 8px;
   border: none;
   background: transparent;
   color: var(--text);
-  font-size: 13px;
+  font-size: 12.5px;
   width: 100%;
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "snippet-manager",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Snippet manager monorepo: shared core, VSCode extension, and Electron desktop app",
   "license": "MIT",

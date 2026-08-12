@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0] - 2026-08-12
+
+### Added
+- Real drag-and-drop in the category tree — drag a category onto another to nest it,
+  or to its top/bottom edge to reorder among siblings (Move up/down still work too)
+- Sidebar is resizable by dragging its right edge, like VS Code (width persists)
+- Right-click "New snippet" on any category creates it immediately with placeholder
+  content and opens it for editing — no form to fill in before it exists
+
+### Changed
+- Sidebar order: Category tree is now the top/primary section, above Language and Tags
+
 ## [0.3.0] - 2026-08-12
 
 ### Added

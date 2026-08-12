@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { CategoryTree } from './CategoryTree'
 import type { ComponentProps } from 'react'
@@ -57,14 +57,53 @@ interface Props {
 function SidebarContent({ languageGroup, tagGroup, categoryTreeProps }: Omit<Props, 'variant' | 'open' | 'onClose'>) {
   return (
     <>
-      <FilterGroup group={languageGroup} />
       <CategoryTree {...categoryTreeProps} />
+      <FilterGroup group={languageGroup} />
       <FilterGroup group={tagGroup} />
     </>
   )
 }
 
+const MIN_WIDTH = 180
+const MAX_WIDTH = 420
+const STORAGE_KEY = 'sidebarWidth'
+
+function useSidebarWidth() {
+  const [width, setWidth] = useState(() => {
+    const stored = Number(localStorage.getItem(STORAGE_KEY))
+    return stored >= MIN_WIDTH && stored <= MAX_WIDTH ? stored : 220
+  })
+  const dragging = useRef(false)
+
+  const startResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    dragging.current = true
+  }, [])
+
+  useEffect(() => {
+    function onMove(e: MouseEvent) {
+      if (!dragging.current) return
+      setWidth(Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, e.clientX)))
+    }
+    function onUp() {
+      if (!dragging.current) return
+      dragging.current = false
+      localStorage.setItem(STORAGE_KEY, String(width))
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+  }, [width])
+
+  return { width, startResize }
+}
+
 export function Sidebar({ languageGroup, tagGroup, categoryTreeProps, variant, open, onClose }: Props) {
+  const { width, startResize } = useSidebarWidth()
+
   if (variant === 'drawer') {
     return (
       <>
@@ -77,8 +116,9 @@ export function Sidebar({ languageGroup, tagGroup, categoryTreeProps, variant, o
   }
 
   return (
-    <aside className="sidebar panel">
+    <aside className="sidebar panel" style={{ width, minWidth: width }}>
       <SidebarContent languageGroup={languageGroup} tagGroup={tagGroup} categoryTreeProps={categoryTreeProps} />
+      <div className="sidebar-resize-handle" onMouseDown={startResize} />
     </aside>
   )
 }

@@ -10,8 +10,9 @@ export function useSnippets() {
   }, [])
 
   const add = useCallback(async (input: NewSnippetInput) => {
-    await window.api.snippets.add(input)
+    const created = await window.api.snippets.add(input)
     setSnippets(await window.api.snippets.getAll())
+    return created
   }, [])
 
   const update = useCallback(async (id: string, updates: SnippetUpdateInput) => {

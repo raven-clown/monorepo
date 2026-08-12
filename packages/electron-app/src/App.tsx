@@ -103,6 +103,17 @@ function App() {
     }
   }
 
+  async function createSnippetIn(categoryId: string) {
+    const created = await add({
+      title: t('untitledSnippet'),
+      language: 'plaintext',
+      code: '',
+      categoryId,
+    })
+    selectSnippet(created.id)
+    setForm({ mode: 'edit', snippet: created })
+  }
+
   if (!loaded) {
     return null
   }
@@ -157,10 +168,12 @@ function App() {
             onRename: categoriesApi.rename,
             onSetPinned: categoriesApi.setPinned,
             onReorder: categoriesApi.reorder,
+            onMove: categoriesApi.move,
             onDelete: async (id) => {
               await categoriesApi.remove(id)
               if (categoryFilter === id) setCategoryFilter(null)
             },
+            onNewSnippet: createSnippetIn,
             t,
           }}
           variant={isCompact ? 'drawer' : 'panel'}

@@ -244,6 +244,27 @@
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.sidebar.panel {
+  position: relative;
+}
+
+.sidebar-resize-handle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 5;
+}
+
+.sidebar-resize-handle:hover,
+.sidebar-resize-handle:active {
+  background: var(--accent);
+  opacity: 0.4;
 }
 
 .sidebar.drawer {
@@ -356,6 +377,24 @@
 
 .tree-context-menu {
   min-width: 170px;
+}
+
+.tree-row.dragging {
+  opacity: 0.4;
+}
+
+.tree-row.drop-into .tree-label,
+.filter-item.drop-into {
+  background: var(--selected);
+  outline: 1px dashed var(--accent);
+}
+
+.tree-row.drop-before {
+  box-shadow: inset 0 2px 0 0 var(--accent);
+}
+
+.tree-row.drop-after {
+  box-shadow: inset 0 -2px 0 0 var(--accent);
 }
 
 .filter-list {
